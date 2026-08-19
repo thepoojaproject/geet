@@ -1,0 +1,62 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch: {}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Cordova CLI
+        run: npm install -g cordova
+
+      # Finds wherever config.xml actually lives in the checked-out repo
+      # (root, or a subfolder if the project was committed nested inside
+      # another folder) so the build doesn't fail with
+      # "Current working directory is not a Cordova-based project."
+      - name: Locate Cordova project
+        id: locate
+        run: |
+          CONFIG_PATH=$(find "$GITHUB_WORKSPACE" -maxdepth 4 -name "config.xml" -not -path "*/node_modules/*" | head -n 1)
+          if [ -z "$CONFIG_PATH" ]; then
+            echo "::error::Could not find config.xml anywhere in this repo. Make sure config.xml, package.json and the www/ folder were actually committed and pushed."
+            exit 1
+          fi
+          PROJECT_DIR=$(dirname "$CONFIG_PATH")
+          echo "Found Cordova project at: $PROJECT_DIR"
+          echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
+
+      - name: Add Android platform
+        working-directory: ${{ env.PROJECT_DIR }}
+        run: cordova platform add android
+
+      - name: Build debug APK
+        working-directory: ${{ env.PROJECT_DIR }}
+        run: cordova build android
+
+      - name: Upload APK as workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: old-is-gold-apk
+          path: ${{ env.PROJECT_DIR }}/platforms/android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
