@@ -1,0 +1,41 @@
+<?xml version='1.0' encoding='utf-8'?>
+<widget id="com.oldisgold.player" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+    <name>Old is Gold</name>
+    <description>
+        Evergreen Hindi classics — vinyl style playlist player.
+    </description>
+    <author email="you@example.com" href="https://github.com/">
+        Old is Gold
+    </author>
+
+    <content src="index.html" />
+
+    <access origin="*" />
+
+    <!-- Needed so the WebView is allowed to load the YouTube player and thumbnail -->
+    <allow-navigation href="https://www.youtube.com/*" />
+    <allow-navigation href="https://youtube.com/*" />
+    <allow-navigation href="https://i.ytimg.com/*" />
+    <allow-navigation href="https://*.googlevideo.com/*" />
+    <allow-navigation href="https://*.ytimg.com/*" />
+
+    <allow-intent href="http://*/*" />
+    <allow-intent href="https://*/*" />
+    <allow-intent href="tel:*" />
+    <allow-intent href="sms:*" />
+    <allow-intent href="mailto:*" />
+    <allow-intent href="geo:*" />
+
+    <preference name="DisallowOverscroll" value="true" />
+    <preference name="MixedContentMode" value="0" />
+
+    <platform name="android">
+        <allow-intent href="market:*" />
+        <preference name="AndroidXEnabled" value="true" />
+        <preference name="android-minSdkVersion" value="22" />
+        <preference name="android-targetSdkVersion" value="34" />
+        <edit-config file="app/src/main/AndroidManifest.xml" mode="merge" target="/manifest/application" xmlns:android="http://schemas.android.com/apk/res/android">
+            <application android:usesCleartextTraffic="true" />
+        </edit-config>
+    </platform>
+</widget>

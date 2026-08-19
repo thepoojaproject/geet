@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Old is Gold | Vinyl Player</title>
+<style>
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+
+  body {
+    background: #0b0a0e;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    color: #eaeaea;
+  }
+
+  .player {
+    width: 100%;
+    max-width: 380px;
+    background: #17151d;
+    border: 1px solid #302d38;
+    border-radius: 25px;
+    padding: 28px;
+    box-shadow: 0 20px 50px rgba(0,0,0,.5);
+  }
+
+  .title {
+    text-align: center;
+    font-size: 11px;
+    letter-spacing: 5px;
+    color: #aaa1c5;
+    margin-bottom: 22px;
+  }
+
+  /* --- VINYL --- */
+
+  .deck {
+    position: relative;
+    width: 100%;
+    max-width: 230px;
+    aspect-ratio: 1 / 1;
+    margin: 0 auto 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .mat {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #221f2c, #0d0c10 75%);
+    box-shadow:
+      inset 0 0 0 1px rgba(255,255,255,0.05),
+      inset 0 10px 30px rgba(0,0,0,0.6);
+  }
+
+  .vinyl {
+    position: relative;
+    width: 84%;
+    height: 84%;
+    border-radius: 50%;
+    background:
+      repeating-radial-gradient(
+        circle,
+        #17151c 0px,
+        #17151c 2px,
+        #211f29 3px,
+        #17151c 5px
+      );
+    box-shadow:
+      0 10px 30px rgba(0,0,0,0.6),
+      inset 0 0 0 1px rgba(255,255,255,0.06);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: spin 5s linear infinite;
+    animation-play-state: paused;
+  }
+
+  .vinyl.playing {
+    animation-play-state: running;
+  }
+
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  .label {
+    width: 38%;
+    height: 38%;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #dca45d, #a96c28 80%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #1a1520;
+    font-size: 18px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+  }
+
+  .arm {
+    position: absolute;
+    width: 5px;
+    height: 34%;
+    background: #bdb8c5;
+    right: 8%;
+    top: 4%;
+    transform-origin: top center;
+    transform: rotate(20deg);
+    transition: transform .4s ease;
+    border-radius: 5px;
+  }
+
+  .arm.playing {
+    transform: rotate(2deg);
+  }
+
+  .arm::before {
+    content: "";
+    position: absolute;
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    background: #55505e;
+    top: -7px;
+    left: -4px;
+  }
+
+  .arm::after {
+    content: "";
+    position: absolute;
+    width: 8px;
+    height: 15px;
+    background: #ddd;
+    bottom: -5px;
+    left: -1px;
+    transform: rotate(-20deg);
+  }
+
+  /* --- SONG INFO / STATUS --- */
+
+  .song-info {
+    text-align: center;
+    margin-bottom: 6px;
+  }
+
+  .song-info h2 {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 3px;
+  }
+
+  .song-info p {
+    font-size: 12px;
+    opacity: 0.65;
+  }
+
+  .status {
+    text-align: center;
+    height: 22px;
+    margin-top: 8px;
+    margin-bottom: 8px;
+    font-size: 12.5px;
+    color: #ff625b;
+  }
+
+  .status.playing { color: #dca45d; }
+  .status.idle { color: rgba(255,255,255,0.5); }
+
+  /* --- BUTTON --- */
+
+  .controls {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+
+  .play {
+    width: 60px;
+    height: 60px;
+    border: none;
+    border-radius: 50%;
+    background: linear-gradient(160deg, #dca45d, #a96c28);
+    color: #1a1520;
+    font-size: 19px;
+    cursor: pointer;
+    transition: transform .15s ease;
+    box-shadow: 0 10px 20px -6px rgba(169,108,40,.55);
+  }
+
+  .play:hover { transform: scale(1.06); }
+  .play:active { transform: scale(.95); }
+
+  /* --- PLAYLIST --- */
+
+  .playlist {
+    max-height: 250px;
+    overflow-y: auto;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    padding-top: 14px;
+  }
+
+  .playlist h3 {
+    font-size: 12px;
+    margin-bottom: 10px;
+    opacity: 0.7;
+    letter-spacing: 0.5px;
+  }
+
+  .playlist-item {
+    padding: 10px 12px;
+    border-radius: 10px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all .2s;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 3px;
+    border-left: 3px solid transparent;
+  }
+
+  .playlist-item:hover {
+    background: rgba(255,255,255,0.08);
+    transform: translateX(3px);
+  }
+
+  .playlist-item.active {
+    background: linear-gradient(90deg, rgba(220,164,93,.2), rgba(169,108,40,.12));
+    border-left: 3px solid #dca45d;
+  }
+
+  .playlist-item span {
+    opacity: 0.55;
+    font-size: 11.5px;
+    white-space: nowrap;
+    margin-left: 10px;
+  }
+
+  .playlist::-webkit-scrollbar { width: 5px; }
+  .playlist::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.2);
+    border-radius: 10px;
+  }
+
+  .footer {
+    text-align: center;
+    margin-top: 16px;
+    font-size: 11px;
+    opacity: 0.45;
+    line-height: 1.6;
+  }
+
+  /*
+    Real, non-zero-size container so the embedded player behaves normally.
+    Kept visually hidden off-screen — not display:none, not 1x1.
+  */
+  .youtube-box {
+    position: fixed;
+    width: 320px;
+    height: 180px;
+    left: -9999px;
+    top: 0;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  @media (max-width: 420px) {
+    .player { padding: 22px; border-radius: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="player">
+  <div class="title">NOW SPINNING — SIDE A</div>
+
+  <div class="deck">
+    <div class="mat"></div>
+    <div class="vinyl" id="vinyl">
+      <div class="label">🎵</div>
+    </div>
+    <div class="arm" id="arm"></div>
+  </div>
+
+  <div class="song-info">
+    <h2 id="current-song">Old is Gold — Collection</h2>
+    <p>Kishore Kumar • Lata Mangeshkar • Mohammed Rafi</p>
+  </div>
+
+  <div class="status" id="status">Ready to play</div>
+
+  <div class="controls">
+    <button class="play" id="playButton">▶</button>
+  </div>
+
+  <div class="playlist" id="playlist">
+    <h3>📜 Playlist — tap a song to jump there</h3>
+    <!-- Playlist items are rendered by script from the songs[] array below -->
+  </div>
+
+  <div class="footer">
+    Powered by YouTube • Saregama Music<br>
+    Made in ❤ for Neelam
+  </div>
+</div>
+
+<!--
+  Only source used: YouTube video ID sCIiVN0zIGE (a single long compilation
+  video). Every playlist entry is just a different start-time offset into
+  that SAME video — no other video, MP3, or external audio source.
+
+  This talks to the embed directly over window.postMessage (the protocol
+  the embed itself understands via enablejsapi=1) instead of loading the
+  separate https://www.youtube.com/iframe_api script bundle. That avoids
+  failures in networks/sandboxes that block fetching that extra script,
+  since the iframe embed itself is the only external resource needed.
+-->
+<div class="youtube-box">
+  <iframe
+    id="ytplayer"
+    src="https://www.youtube.com/embed/sCIiVN0zIGE?enablejsapi=1&controls=0&rel=0&modestbranding=1&playsinline=1&start=0"
+    allow="autoplay; encrypted-media; picture-in-picture"
+    referrerpolicy="strict-origin-when-cross-origin">
+  </iframe>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var songs = [
+    { seconds: 6,    title: "O Mere Dil Ke Chain" },
+    { seconds: 282,  title: "Lag Ja Gale Se Phir" },
+    { seconds: 540,  title: "Tere Bina Zindagi Se" },
+    { seconds: 894,  title: "Chura Liya Hai Tumne Jo Dil Ko" },
+    { seconds: 1182, title: "Bheegi Bheegi Raaton Mein" },
+    { seconds: 1411, title: "Ek Ajnabee Haseena Se" },
+    { seconds: 1677, title: "Tum Aa Gaye Ho Noor Aa Gaya" },
+    { seconds: 1929, title: "Kora Kagaz Tha Yeh Man Mera" },
+    { seconds: 2268, title: "Likhe Jo Khat Tujhe" },
+    { seconds: 2541, title: "Kya Hua Tera Vada" },
+    { seconds: 2799, title: "Aap Ki Ankhon Mein Kuch" },
+    { seconds: 3048, title: "Yeh Sham Mastani" },
+    { seconds: 3325, title: "Ajib Dastan Hai Yeh" },
+    { seconds: 3641, title: "Mere Sapnon Ki Rani" },
+    { seconds: 3941, title: "Abhi Na Jao Chhod Kar" },
+    { seconds: 4196, title: "Bahon Mein Chale Aao" },
+    { seconds: 4438, title: "Hamen Tumse Pyar Kitna" },
+    { seconds: 4679, title: "Bade Achhe Lagte Hain" }
+  ];
+
+  function formatTime(totalSeconds) {
+    var h = Math.floor(totalSeconds / 3600);
+    var m = Math.floor((totalSeconds % 3600) / 60);
+    var s = totalSeconds % 60;
+    var mm = (h > 0 ? String(m).padStart(2, "0") : String(m));
+    var ss = String(s).padStart(2, "0");
+    return h > 0 ? (h + ":" + mm + ":" + ss) : (mm + ":" + ss);
+  }
+
+  var frame = document.getElementById("ytplayer");
+  var button = document.getElementById("playButton");
+  var status = document.getElementById("status");
+  var vinyl = document.getElementById("vinyl");
+  var arm = document.getElementById("arm");
+  var songTitleEl = document.getElementById("current-song");
+  var playlistEl = document.getElementById("playlist");
+
+  if (!frame || !button || !status || !vinyl || !arm || !songTitleEl || !playlistEl) {
+    console.error("[VinylPlayer] Required DOM element(s) missing. Aborting init.");
+    return;
+  }
+
+  var ERROR_MESSAGES = {
+    2: "Invalid video ID.",
+    5: "HTML5 player error.",
+    100: "This video is unavailable or private.",
+    101: "This video doesn't allow embedded playback.",
+    150: "This video doesn't allow embedded playback."
+  };
+
+  var playing = false;
+  var startingTimeoutId = null;
+  var itemEls = [];
+
+  // --- Render playlist ---
+  songs.forEach(function (song, index) {
+    var item = document.createElement("div");
+    item.className = "playlist-item";
+    item.setAttribute("role", "button");
+    item.setAttribute("tabindex", "0");
+
+    var nameSpan = document.createElement("span");
+    nameSpan.style.marginLeft = "0";
+    nameSpan.style.opacity = "1";
+    nameSpan.textContent = song.title;
+
+    var timeSpan = document.createElement("span");
+    timeSpan.textContent = formatTime(song.seconds);
+
+    item.appendChild(nameSpan);
+    item.appendChild(timeSpan);
+    item.addEventListener("click", function () { playSong(index); });
+    item.addEventListener("keydown", function (e) {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        playSong(index);
+      }
+    });
+
+    playlistEl.appendChild(item);
+    itemEls.push(item);
+  });
+
+  function setActiveItem(index) {
+    itemEls.forEach(function (el, i) {
+      el.classList.toggle("active", i === index);
+    });
+  }
+
+  function setStatus(text, mode) {
+    status.textContent = text;
+    status.classList.remove("playing", "idle", "error");
+    if (mode) status.classList.add(mode);
+  }
+
+  function setPlayingUI(isPlaying) {
+    vinyl.classList.toggle("playing", isPlaying);
+    arm.classList.toggle("playing", isPlaying);
+    button.textContent = isPlaying ? "⏸" : "▶";
+  }
+
+  function youtubeCommand(func, args) {
+    frame.contentWindow.postMessage(
+      JSON.stringify({ event: "command", func: func, args: args || [] }),
+      "https://www.youtube.com"
+    );
+  }
+
+  function markStarting() {
+    playing = true;
+    setPlayingUI(true);
+    setStatus("Starting song...");
+
+    if (startingTimeoutId) clearTimeout(startingTimeoutId);
+    startingTimeoutId = setTimeout(function () {
+      if (playing) setStatus("Playing 🎵", "playing");
+    }, 800);
+  }
+
+  function playSong(index) {
+    var song = songs[index];
+    songTitleEl.textContent = song.title;
+    setActiveItem(index);
+
+    youtubeCommand("seekTo", [song.seconds, true]);
+    youtubeCommand("playVideo");
+    markStarting();
+  }
+
+  button.addEventListener("click", function () {
+    if (!playing) {
+      youtubeCommand("playVideo");
+      markStarting();
+    } else {
+      youtubeCommand("pauseVideo");
+      playing = false;
+      if (startingTimeoutId) { clearTimeout(startingTimeoutId); startingTimeoutId = null; }
+      setPlayingUI(false);
+      setStatus("Paused");
+    }
+  });
+
+  frame.addEventListener("load", function () {
+    setStatus("Ready to play", "idle");
+  });
+
+  window.addEventListener("message", function (event) {
+    if (event.origin !== "https://www.youtube.com") return;
+
+    try {
+      var data = typeof event.data === "string" ? JSON.parse(event.data) : event.data;
+
+      if (data && data.event === "onError") {
+        var code = data.info;
+        var message = ERROR_MESSAGES[code] || ("Playback error (code " + code + ").");
+        console.error("[VinylPlayer] YouTube player error. Code:", code, "-", message);
+
+        playing = false;
+        if (startingTimeoutId) { clearTimeout(startingTimeoutId); startingTimeoutId = null; }
+        setPlayingUI(false);
+        setStatus(message, "error");
+      }
+    } catch (err) {
+      // Ignore non-JSON / unrelated messages
+    }
+  });
+})();
+</script>
+
+</body>
+</html>

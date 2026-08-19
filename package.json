@@ -1,0 +1,11 @@
+{
+  "name": "old-is-gold-player",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Evergreen Hindi classics vinyl/playlist player, wrapped as an Android app via Cordova.",
+  "cordova": {
+    "platforms": [
+      "android"
+    ]
+  }
+}
